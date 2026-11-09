@@ -78,13 +78,31 @@ fun largestCount (list) =
     end;
 
 (* Part 5: Function that converts an integer to a string*)
+fun int2String (int) = 
+    let 
+
+    fun separate ([], 0) = [0]
+    |   separate (list, 0) = list      (* Base case *)
+    |   separate (list, int) = 
+        if (int div 10 = 0)
+        then ((int mod 10)::list)
+        else
+            (int mod 10)::separate(list, int div 10)
+    
+    fun individualDigitToChar digit = chr (digit + 48)
+
+    fun toChars [] = []
+     |  toChars (list) = 
+        individualDigitToChar(hd list) :: toChars(tl list)
+    in
+        implode (rev(toChars(separate([],int))))
+    end;
 
 (* Part 6: Function that converts a string to an integer*)
 fun string2Int (string) =
     let 
         val exploded = String.explode string;
         fun singleDigit d = ord d - ord #"0"
-    
     fun tens ([], total) = total
      |  tens (head::tail, total) = 
         tens (tail, total * 10 + singleDigit(head))
@@ -92,7 +110,27 @@ fun string2Int (string) =
         tens (exploded, 0)
     end;
         
+(* Part 7: Function to removeLastChar from a string *)
 
+fun removeLastChar s =
+    let
+        fun dropLast [] = []
+          | dropLast [_] = []      
+          | dropLast (c::cs) = c :: dropLast cs
+    in
+        String.implode (dropLast (String.explode s))
+    end;
+
+(* Part 8: Function that handles data input and processing from file *)
+
+fun readFile (filename) = 
+    let
+        val inStream = TextIO.openIn filename
+        fun loop instream = 
+            case TextIO.scanStream
+    in
+      body
+    end
 (* Part 1 Unit Tests: Tests for integer values, strings, and the empty-list case. *)
 val replaceAllIntegerTest =
     replaceAll ([1, 2, 5, 2, 10], 2, 100)
@@ -147,10 +185,19 @@ val largestCountTest2 =
 val string2IntTest1 = 
     string2Int("123")
 
+val int2StringTest1 = 
+    int2String(123456789)
+
+val removeLastCharTest =
+    removeLastChar("abc")
+
+val readFileName("data.txt")
 (*
 Questions to Ask
 - Expected handling of data types for each part
 - driver + multiple files? How to run.
 - part 3, unexpected data handling? If second param not "left" or "right"
 - int to string only expected input? Only numbers as chars?
+- int to string only positive numbers?
+- name of function 8?
 *)
