@@ -250,9 +250,13 @@ val part8Test = displayFileSummary "data.txt"
 Questions to Ask
 - Expected handling of data types for each part
 - driver + multiple files? How to run.
-- part 3, unexpected data handling? If second param not "left" or "right"
+- part 3, unexpected data handling? If second param not "left" or "right" Test case will always hanldle left right
 - int to string only expected input? Only numbers as chars? Negative numbers?
 - int to string only positive numbers?
-- name of function 8?
-- Can we ignore warnings? Ie nonexhautive match.
+- name of function 8? Io something
+- Can we ignore warnings? Ie nonexhautive match. Do not ignore warnings for non exhaustive 
+- Is part 8 file name input keyboard or text input? If text input, how to handle file not found? Keyboard input
+
+- Helper function for negative nmbers in 6
+
 *)
