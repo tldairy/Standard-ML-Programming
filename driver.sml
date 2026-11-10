@@ -123,14 +123,67 @@ fun removeLastChar s =
 
 (* Part 8: Function that handles data input and processing from file *)
 
-fun readFile (filename) = 
+fun listSize [] = 0
+  | listSize (_ :: xs) = 1 + listSize xs
+
+fun largestNumber [x] = x
+  | largestNumber (x :: xs) =
+      let
+          val tailLargest = largestNumber xs
+      in
+          if x > tailLargest then x else tailLargest
+      end
+
+fun averageOfList [] = 0.0
+  | averageOfList numbers =
+      let
+          val total = foldl (op +) 0 numbers
+          val count = Real.fromInt (listSize numbers)
+      in
+          Real.fromInt total / count
+      end
+
+fun readFile filename =
     let
         val inStream = TextIO.openIn filename
-        fun loop instream = 
-            case TextIO.scanStream
+        fun loop acc =
+            case TextIO.inputLine inStream of
+                NONE => rev acc
+              | SOME line =>
+                    let
+                        val trimmed =
+                            if String.size line > 0 andalso String.sub (line, String.size line - 1) = #"\n"
+                            then removeLastChar line
+                            else line
+                        val finalTrimmed =
+                            if String.size trimmed > 0 andalso String.sub (trimmed, String.size trimmed - 1) = #"\r"
+                            then removeLastChar trimmed
+                            else trimmed
+                    in
+                        if finalTrimmed = ""
+                        then loop acc
+                        else loop (string2Int finalTrimmed :: acc)
+                    end
+        val numbers = loop []
+        val _ = TextIO.closeIn inStream
     in
-      body
+        numbers
     end
+
+fun displayFileSummary filename =
+    let
+        val numbers = readFile filename
+        val size = listSize numbers
+        val largest = largestNumber numbers
+        val avg = averageOfList numbers
+        val _ = print ("Enter a file name: " ^ filename ^ "\n")
+        val _ = print ("List size: " ^ int2String size ^ "\n")
+        val _ = print ("Largest number is: " ^ int2String largest ^ "\n")
+        val _ = print ("Average: " ^ Real.toString avg ^ "\n")
+    in
+        ()
+    end
+
 (* Part 1 Unit Tests: Tests for integer values, strings, and the empty-list case. *)
 val replaceAllIntegerTest =
     replaceAll ([1, 2, 5, 2, 10], 2, 100)
@@ -167,13 +220,13 @@ val circulateTestRight =
 val circulateTestLeft = 
     circulateDir([1,2,3], "left")
 
-val circulateTestRight = 
+val circulateTestRightString = 
     circulateDir(["a","b","c"], "right")
 
-val circulateTestLeft = 
+val circulateTestLeftString = 
     circulateDir(["a","b","c"], "left")
 
-val circulateTestRight = 
+val circulateTestWrong = 
     circulateDir([1,2,3], "wrong")
 
 val largestCountTest1 = 
@@ -191,13 +244,15 @@ val int2StringTest1 =
 val removeLastCharTest =
     removeLastChar("abc")
 
-val readFileName("data.txt")
+val part8Test = displayFileSummary "data.txt"
+
 (*
 Questions to Ask
 - Expected handling of data types for each part
 - driver + multiple files? How to run.
 - part 3, unexpected data handling? If second param not "left" or "right"
-- int to string only expected input? Only numbers as chars?
+- int to string only expected input? Only numbers as chars? Negative numbers?
 - int to string only positive numbers?
 - name of function 8?
+- Can we ignore warnings? Ie nonexhautive match.
 *)
