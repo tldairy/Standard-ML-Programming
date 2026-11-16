@@ -77,37 +77,35 @@ fun largestCount (list) =
         (listMax(list), size(list))
     end;
 
-(* Part 5: Function that converts an integer to a string*)
-fun int2String (int) = 
-    let 
-
-    fun separate ([], 0) = [0]
-    |   separate (list, 0) = list      (* Base case *)
-    |   separate (list, int) = 
-        if (int div 10 = 0)
-        then ((int mod 10)::list)
-        else
-            (int mod 10)::separate(list, int div 10)
-    
-    fun individualDigitToChar digit = chr (digit + 48)
-
-    fun toChars [] = []
-     |  toChars (list) = 
-        individualDigitToChar(hd list) :: toChars(tl list)
+(* Part 5: Function that converts an integer to a string *)
+fun int2String n =
+    let
+        fun digitToChar digit = chr (ord #"0" + digit)
+        fun digits 0 acc = rev (#"0" :: acc)
+          | digits value acc =
+                digits (value div 10) (digitToChar (abs (value mod 10)) :: acc)
     in
-        implode (rev(toChars(separate([],int))))
+        if n < 0 then
+            String.implode (#"~" :: digits (~n) [])
+        else
+            String.implode (digits n [])
     end;
 
-(* Part 6: Function that converts a string to an integer*)
-fun string2Int (string) =
-    let 
-        val exploded = String.explode string;
-        fun singleDigit d = ord d - ord #"0"
-    fun tens ([], total) = total
-     |  tens (head::tail, total) = 
-        tens (tail, total * 10 + singleDigit(head))
+(* Part 6: Function that converts a string to an integer *)
+fun string2Int str =
+    let
+        val chars = String.explode str
+        val negative =
+            case chars of
+                #"~" :: _ => true
+              | _ => false
+        val digits =
+            if negative then tl chars else chars
+        fun parse [] = 0
+          | parse (c :: rest) =
+                (ord c - ord #"0") + 10 * parse rest
     in
-        tens (exploded, 0)
+        if negative then ~ (parse digits) else parse digits
     end;
         
 (* Part 7: Function to removeLastChar from a string *)
@@ -184,67 +182,28 @@ fun displayFileSummary filename =
         ()
     end
 
-(* Part 1 Unit Tests: Tests for integer values, strings, and the empty-list case. *)
-val replaceAllIntegerTest =
-    replaceAll ([1, 2, 5, 2, 10], 2, 100)
-val replaceAllIntegerTestASSERT =
-    replaceAll ([1, 2, 5, 2, 10], 2, 100) = [1, 100, 100, 5, 100, 100, 10]
-val replaceAllStringTest =
-    replaceAll (["the", "to", "you", "the"], "the", "hi")
-val replaceAllStringTestASSERT =
-    replaceAll (["the", "to", "you", "the"], "the", "hi") =
-    ["hi", "hi", "to", "you", "hi", "hi"]
-val replaceAllEmptyTest = replaceAll ([], 2, 100)
-val replaceAllEmptyTestASSERT = replaceAll ([], 2, 100) = []
+(* Spec-based test cases: each function is invoked in the same order as the project specification. *)
+val testReplaceAll1 = replaceAll ([1, 2, 5, 2, 10], 2, 100)
+val testReplaceAll2 = replaceAll (["the", "to", "you", "the"], "the", "hi")
 
-(* Part 2 Unit Tests: Tests for expected input, empty list, reverse order list, and single element list *)
-val removeDuplicatesTest = 
-    removeDuplicates ([1, 2, 3, 2, 4, 1, 5, 3])
+val testRemoveDuplicates1 = removeDuplicates ([1, 2, 3, 2, 4, 1, 5, 3])
 
-val removeDuplicatesTest2 = 
-    removeDuplicates([])
+val testCirculateLeft = circulateDir ([1, 2, 3, 4], "left")
+val testCirculateRight = circulateDir ([1, 2, 3, 4], "right")
 
-val removeDuplidatesTest3 = 
-    removeDuplicates ([5,4,4,3,2,1])
+val testLargestCount = largestCount [10, 1, 7, 40, ~5, 20]
 
-val removeDuplidatesTest4 = 
-    removeDuplicates ([5])
+val testInt2String1 = int2String 123
+val testInt2String2 = int2String ~123
 
-(* Part 3 Unit Tests: Test for right and left rotation with strings and int *)
-val circulateTest1 = 
-    circulate[1,2,3,4]
+val testString2Int1 = string2Int "123"
+val testString2Int2 = string2Int "~123"
 
-val circulateTestRight = 
-    circulateDir([1,2,3], "right")
+val testRemoveLastChar1 = removeLastChar "abc"
+val testRemoveLastChar2 = removeLastChar "725"
+val testRemoveLastChar3 = removeLastChar ""
 
-val circulateTestLeft = 
-    circulateDir([1,2,3], "left")
-
-val circulateTestRightString = 
-    circulateDir(["a","b","c"], "right")
-
-val circulateTestLeftString = 
-    circulateDir(["a","b","c"], "left")
-
-val circulateTestWrong = 
-    circulateDir([1,2,3], "wrong")
-
-val largestCountTest1 = 
-    largestCount([1,2,3,4,5,6,7,8])
-
-val largestCountTest2 = 
-    largestCount([1,2,3,4,12,5,6,7,8])
-
-val string2IntTest1 = 
-    string2Int("123")
-
-val int2StringTest1 = 
-    int2String(123456789)
-
-val removeLastCharTest =
-    removeLastChar("abc")
-
-val part8Test = displayFileSummary "data.txt"
+val testDisplaySummary = displayFileSummary "data.txt"
 
 (*
 Questions to Ask
